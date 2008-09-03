@@ -1,0 +1,6 @@
+SHELL=/bin/bash                                                                                                                                      
+PATH=/sbin:/bin:/usr/sbin:/usr/bin                                                                                                                   
+MAILTO=mark                                                                                                                                           
+HOME=/home/mark                                                                                                                                       
+                                                                                                                                                     
+0 0 * * * $HOME/Projects/build-system/cron.sh 
