@@ -83,27 +83,8 @@ if [ $action = "update" ];
 then
     #echo "deleting any NEGATIVE cache in your cache dir"
     #rm -rf $HOME/conary/cache/NEGATIVE
-#    cd $workingDir
-#    echo $troves | xargs cvc co
-#    for trove in $troves;
-#    do
-#        module=`echo $trove | tr A-Z a-z`
-#        lastestVersion=`conary rq $trove:source=xfce.rpath.org@xfce:devel |awk -F '/' '{print $2}'|awk -F '-' '{print $1}'`
-#        lastestRevision=`/usr/bin/svn log -q --limit 1 http://svn.xfce.org/svn/xfce/$module/trunk/ |grep -v '\-\-\-'|awk '{print $1}'`
-#        echo "Latest version of $trove in conary is: $lastestVersion"
-#        echo "Latest version of $module in svn is: $lastestRevision"
-#        if [ $lastestVersion != $lastestRevision ]
-#        then
-#            echo "refreshing $trove"
-#            cd $trove
-#            cvc refresh $trove--.tar.bz2 
-#            cvc commit --message "New snapshot"
-#            cd - >/dev/null 2>&1
-#        fi
-#    done
-#    cd $currentDir
-update
-update "goodies"
+    update
+    update "goodies"
 
 elif [ $action = "build" ];
 then
