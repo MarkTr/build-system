@@ -31,7 +31,7 @@ workingDir=$HOME/conary/src/xfce-devel
 currentDir=`pwd`
 context="xfce:devel"
 
-# give "goodies" as argument if you want to build goodies
+# give "goodies" as argument if you want to update goodies
 update()
 {
     local repo="http://svn.xfce.org/svn/xfce/"
@@ -46,7 +46,6 @@ update()
     echo $troves | xargs cvc co
     for trove in $troves;
     do
-        echo $trove "<--"
         module=`echo $trove | tr A-Z a-z`
         lastestVersion=`conary rq $trove:source=xfce.rpath.org@xfce:devel |awk -F '/' '{print $2}'|awk -F '-' '{print $1}'`
         lastestRevision=`/usr/bin/svn log -q --limit 1 $repo$module/trunk/ |grep -v '\-\-\-'|awk '{print $1}'`
@@ -63,32 +62,11 @@ update()
     done
     cd $currentDir
 }
-#Note each trove in this list needs to end with a ","
-troves="gtk-xfce-engine,libexo,libxfce4util,libxfce4menu,libxfcegui4,xfce-utils,xfconf,thunar,xfce4-dev-tools,xfce4-panel,xfce4-session,xfce4-settings,xfdesktop,xarchiver,xfce4-mixer,orage,xfwm4,xfwm4-themes,"
-goodies="xfburn,"
-blacklist="gtk-xfce-engine,orage,"
 
-blacklist=`echo "$blacklist" | sed "s/,/ /g"`
-echo Current Black list includes:
-
-for i in $blacklist;
-do
-    echo $i
-    troves=`echo "$troves" | sed "s/$i,/ /g"`
-    goodies=`echo "$goodies" | sed "s/$i,/ /g"`
-done
-troves=`echo "$troves" | sed "s/,/ /g"`
-goodies=`echo "$goodies" | sed "s/,/ /g"`
-if [ $action = "update" ];
-then
-    #echo "deleting any NEGATIVE cache in your cache dir"
-    #rm -rf $HOME/conary/cache/NEGATIVE
-    update
-    update "goodies"
-
-elif [ $action = "build" ];
-then
+build ()
+{
     tobuild=""
+    troves="$troves $goodies"
     echo $troves
     for trove in $troves;
     do
@@ -126,6 +104,34 @@ then
         echo "Build $jobId Failed"
         rmake commit $jobId
     fi
+}
+
+#Note each trove in this list needs to end with a ","
+troves="gtk-xfce-engine,libexo,libxfce4util,libxfce4menu,libxfcegui4,xfce-utils,xfconf,thunar,xfce4-dev-tools,xfce4-panel,xfce4-session,xfce4-settings,xfdesktop,xarchiver,xfce4-mixer,orage,xfwm4,xfwm4-themes,"
+goodies="xfburn,"
+blacklist="gtk-xfce-engine,orage,"
+
+blacklist=`echo "$blacklist" | sed "s/,/ /g"`
+echo Current Black list includes:
+
+for i in $blacklist;
+do
+    echo $i
+    troves=`echo "$troves" | sed "s/$i,/ /g"`
+    goodies=`echo "$goodies" | sed "s/$i,/ /g"`
+done
+troves=`echo "$troves" | sed "s/,/ /g"`
+goodies=`echo "$goodies" | sed "s/,/ /g"`
+if [ $action = "update" ];
+then
+    #echo "deleting any NEGATIVE cache in your cache dir"
+    #rm -rf $HOME/conary/cache/NEGATIVE
+    update
+    update "goodies"
+
+elif [ $action = "build" ];
+then
+    build
 elif [ $action = "bump" ];
 then
     cd $workingDir
