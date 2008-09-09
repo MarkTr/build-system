@@ -30,6 +30,10 @@ action=$1
 workingDir=$HOME/conary/src/xfce-devel
 currentDir=`pwd`
 context="xfce:devel"
+#Note each trove in this list needs to end with a ","
+troves="gtk-xfce-engine,libexo,libxfce4util,libxfce4menu,libxfcegui4,xfce-utils,xfconf,thunar,xfce4-dev-tools,xfce4-panel,xfce4-session,xfce4-settings,xfdesktop,xarchiver,xfce4-mixer,orage,xfwm4,xfwm4-themes,"
+goodies="xfburn,xfce4-appfinder,xfce4-places-plugin,xfce4-battery-plugin,xfce4-cddrive-plugin,"
+blacklist="gtk-xfce-engine,orage,"
 
 # give "goodies" as argument if you want to update goodies
 update()
@@ -105,11 +109,6 @@ build ()
         rmake commit $jobId
     fi
 }
-
-#Note each trove in this list needs to end with a ","
-troves="gtk-xfce-engine,libexo,libxfce4util,libxfce4menu,libxfcegui4,xfce-utils,xfconf,thunar,xfce4-dev-tools,xfce4-panel,xfce4-session,xfce4-settings,xfdesktop,xarchiver,xfce4-mixer,orage,xfwm4,xfwm4-themes,"
-goodies="xfburn,"
-blacklist="gtk-xfce-engine,orage,"
 
 blacklist=`echo "$blacklist" | sed "s/,/ /g"`
 echo Current Black list includes:
