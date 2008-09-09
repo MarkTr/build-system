@@ -79,7 +79,7 @@ build ()
         if [ -z "$lastestSourceVersion" ] || [ -z $lastestBuiltVersion ]
         then
             echo "Either source or binary version of $trove is unknown"
-            tobuild="$tobuild,$trove"
+            tobuild="$tobuild $trove\{x86_64\} $trove\{x86\}"
         elif [ $lastestSourceVersion != $lastestBuiltVersion ]
         then
             echo "Latest source version of $trove is: $lastestSourceVersion"
