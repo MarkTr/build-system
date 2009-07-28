@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2009 Mark Trompell <mark@foresightlinux.org>
 #
@@ -9,18 +10,32 @@
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 
-
 from optparse import OptionParser
+import subprocess as sp
+import os
+import conarypk
 
 versionString="%prog 0.1"	
 gitPack = ['midori', 'ristretto']
-svnPack = ['gtk-xfce-engine', 'libexo,libxfce4util', 'libxfce4menu', 
-           'libxfcegui4', 'xfce-utils', 'xfconf', 'thunar', 'xfce4-dev-tools', 
-		   'xfce4-panel', 'xfce4-session', 'xfce4-settings', 'xfdesktop',
-		   'xarchiver', 'xfce4-mixer', 'orage', 'xfwm4', 'xfwm4-themes', 
-		   'xfce4-appfinder', 'xfprint',
-		   ]
+cwd = os.getcwd()
+cpk = conarypk.ConaryPk()
+ilp = 'foresight.rpath.org@fl:2-devel'
+
+def latest_git(project, gitrepo):
+	curgit = cpk.request_query(project, ilp)[0][1].trailingRevision().getVersion()
+	#curgit.getSourceVersion()
+	print curgit
+	os.chdir(os.path.expanduser('~/git/'))
+	sp.check_call(['git-clone', '-q', '--depth', '1', '-n', gitrepo, project])
+	os.chdir(os.path.expanduser('~/git/') + project)		
+	newgit = 	sp.Popen(['git', 'rev-parse', '--short', 'HEAD'],
+	        stdout=sp.PIPE, stderr=sp.STDOUT).stdout.read().strip()
+	print newgit
+	os.chdir(cwd)
+	
+	
 def update(scm):
+	latest_git(project, gitrepo)
 	print (scm)
 	
 def build():
@@ -42,6 +57,8 @@ if len(args) !=1:
 	parser.error("incorrect number of arguments")
 
 if (args[0] == 'update'):
+	project = 'whaawmp'
+	gitrepo = 'http://git.gitorious.org/whaawmp/mainline.git'
 	update(options.scm)
 elif (args[0] == 'build'):
 	build()
