@@ -1,0 +1,167 @@
+#
+# Copyright (c) 2004-2007 rPath, Inc.
+# Copyright (c) 2008 - 2009 Foresight Linux
+# This file is distributed under the terms of the MIT License.
+# A copy is available at http://www.rpath.com/permanent/mit-license.html
+#
+
+import datetime
+subprocess=__import__('subprocess')
+
+def getVersion(name):
+    cwd = os.getcwd()
+    gitClone = ["/usr/bin/git", "clone", "-qn", "--depth", "1", "http://git.xfce.org/git/kalikiana/midori.git", name]
+    print gitClone
+    subprocess.check_call(gitClone, stdout=subprocess.PIPE, env={"HOME": "/tmp/"})
+    os.chdir(name)
+    p = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'],
+	                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                          env={"HOME": "/tmp/"})
+    p.wait()
+    data = p.stdout.read().strip()
+    os.chdir(cwd)
+    subprocess.check_call(['rm', '-rf', name])
+    print data
+    if p.returncode != 0:
+        print "git commit not retrieved for %s\n" % name
+        return
+    revision = data
+    return revision
+
+class XfcePackageRecipe(CPackageRecipe):
+    buildRequires = [
+        'autoconf:runtime', 'automake:runtime', 'pkgconfig:devel', 'gtk:devel',
+        'zlib:devel', 'libX11:devel', 'libXau:devel', 'libXdmcp:devel',
+        'libXext:devel', 'libXi:devel', 'libXinerama:devellib',
+        'libXrender:devel', 'libdmx:devel', 'glib:devel', 'libICE:devel',
+        'libSM:devel', 'dbus:devel', 'dbus-glib:devellib', 'dbus-glib:devel',
+        'dbus-glib:runtime', 'intltool:runtime', 'intltool:devel',
+        'glib:runtime', 'libXt:devel', 'libxslt:runtime', 'which:runtime',
+        'file:runtime', 'expat:devel', 'gettext:runtime', 'gettext:devel',
+        'gcc-c++:runtime', 'docbook-dtds:data', 'docbook-xsl:data',
+        'libxslt:runtime', 'gtk-doc:runtime', 'gtk-doc:devel', 'libtool:devel',
+        'libtool:runtime', 'subversion:runtime', 
+    ]
+
+    name = 'xfcepackage'
+    sourcename = None 
+    majversion = '4.5'
+    version = datetime.date.today().strftime("%Y%m%d")
+    subtree = 'xfce'
+
+    @classmethod
+    def _getVersion(cls, name):
+        return getVersion(name)
+
+    extraConfig = ''
+    preConfigure = ''
+    preMake = ''
+    preMakeInstall = 'GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1'
+    makeArgs = ''
+    makeInstallArgs = ''
+    configureName = 'configure'
+
+    # set this to the URL of a source archive if the package
+    # is not on GNOME's ftp server.
+    externalArchive = None
+    gitUrl = None
+
+    # list to hold patches
+    patches = []
+
+    # optional autoGen variable to set what command to run when needing to run autogen.sh
+    autoGen = None
+
+    # standard GNOME docs
+    docs = []
+
+    if Use.builddocs:
+        extraConfig += ' --enable-gtk-doc'
+        buildRequires.extend(['gtk-doc:runtime', 'gnome-doc-utils:runtime',
+                              'gnome-doc-utils:devel', ])
+    else:
+        extraConfig += ' --disable-gtk-doc'
+
+    def setup(r):
+        if r.__class__.__name__ == 'XfcePackageRecipe':
+            return
+
+        # this one is subtle. we don't want a pkg that loads GnomePackageRecipe to be a buildReq of itself
+        # since this turns into a lot of dep cicles inside rMake... 
+        #r.clearBuildReqs('%(name)s') # doesn't work :/
+
+        if not r.sourcename:
+            r.sourcename = r.name
+        r.macros.sourcename = r.sourcename
+
+        r.macros.optflags = '-g -Os'
+
+        r.unpack()
+        r.build()
+        r.install()
+        r.policy()
+
+    def unpack(r):
+        if r.externalArchive:
+            r.addArchive(r.externalArchive)
+        elif r.gitUrl:
+            r.buildRequires.extend(['xfce4-dev-tools:runtime'])
+            r.addGitSnapshot(r.gitUrl)
+            if r.autoGen:
+                r.Run(r.autoGen)
+            else:
+                # NOCONFIGURE=yes doesn't work with several xfce packages.
+                #r.Run('NOCONFIGURE=yes ./autogen.sh')
+                r.configureName='./autogen.sh'
+        else:
+            r.buildRequires.extend(['xfce4-dev-tools:runtime'])
+            r.addGitSnapshot('http://git.xfce.org/git/kalikiana/midori.git')
+            if r.autoGen:
+                r.Run(r.autoGen)
+            else:
+                # NOCONFIGURE=yes doesn't work with several xfce packages.
+                #r.Run('NOCONFIGURE=yes ./autogen.sh')
+                r.configureName='./autogen.sh'
+        if r.patches:
+            for patch in r.patches:
+                r.addPatch(patch)
+
+    def build(r):
+        r.Configure(r.extraConfig,
+                    configureName = r.configureName,
+                    preConfigure = r.preConfigure)
+
+        r.Make(r.makeArgs, preMake=r.preMake)
+
+    def install(r):
+        r.MakeInstall(r.makeInstallArgs, preMake=r.preMakeInstall)
+        # this really needs to be the other way around, but we need
+        # to find a way to automate that first.
+        #r.Requires('%s:runtime' %r.macros.name,
+        #                '%(libdir)s/gnome-vfs-2.0/modules/.*',
+        #                '%(libdir)s/bonobo/.*',
+        #                '%(libdir)s/gtk-2.0/modules/.*',
+        #                '%(libdir)s/libglade/2.0/.*',
+        #                '%(libdir)s/orbit-2.0/.*')
+        r.Remove('%(libdir)s/gtk-2.0/modules/*.a',
+                 '%(libdir)s/bonobo/*.a',
+                 '%(libdir)s/libglade/2.0/*.a',
+                 allowNoMatch = True)
+
+        # Remove any autogenerated scrollkeeper cache files.
+        # Entirely disabling scrollkeeper-update when building
+        # the package is preferred, either by modifying the
+        # makefile, or passing an option to the configure script,
+        # if such an option exists.
+        r.Remove('%(localstatedir)s/lib/scrollkeeper/',
+                 '%(localstatedir)s/scrollkeeper/',
+                 recursive = True)
+
+        if r.docs:
+            r.Doc(*r.docs)
+
+        # GConf schemas should be in :data so that :lib depends on them
+        #r.ComponentSpec('data', '%(sysconfdir)s/gconf/schemas/')
+
+    def policy(r):
+        pass
