@@ -18,40 +18,12 @@ from conary import cvc
 from rmake.cmdline import main as rmk
 
 versionString="%prog 0.1"   
-gitPack = ['midori', 'ristretto']
 cwd = os.getcwd()
 cpk = conarypk.ConaryPk()
 ilps = {'xd':'xfce.rpath.org@xfce:devel','fl2':'foresight.rpath.org@fl:2-devel'}
 codirs = {'xd':'~/conary/src/xfce-devel/','fl2':'~/conary/src/fl2-devel/'}
+pkglists = {'xd':'pkglist_xd','fl2':'pkglist_fl'}
 
-pkglist = [
-    'gtk-xfce-engine',
-    'libexo',
-    'libxfce4util',
-    'libxfce4menu',
-    'libxfcegui4',
-    'xfce-utils',
-    'xfconf',
-    'thunar',
-    'xfce4-dev-tools',
-    'xfce4-panel',
-    'xfce4-session',
-    'xfce4-settings',
-    'xfdesktop,xarchiver',
-    'xfce4-mixer,orage',
-    'xfwm4,xfwm4-themes',
-    'xfce4-appfinder',
-    'xfprint',
-    'libxfce4ui',
-    'xfburn',
-    'xfce4-places-plugin',
-    'xfce4-battery-plugin',
-    'xfce4-cddrive-plugin',
-    'thunar-volman',
-    'xfce4-power-manager',
-    'gigolo',
-    'parole'
-]
 
 def load_pkglist():
     pass
@@ -82,6 +54,7 @@ def needsupdate_git(project, gitrepo):
     return (newgit != curgit)
 
 def needsbuild(project):
+    return True
     srev = cpk.request_query(project +':source', ilp)[0][1].trailingRevision()
     brev = cpk.request_query(project, ilp)[0][1].trailingRevision()
     print srev,srev.buildCount,srev.sourceCount, brev,brev.buildCount,brev.sourceCount
@@ -102,11 +75,32 @@ def update():
     if needsupdate_git(project, gitrepo):
         refresh(project)
     
-    
 def build():
-    if needsbuild(project):
-        print ('build')
-    rmk.main(['refresh-xfce.py', 'build', project + '{x86}', '--commit', '--context=fl:2-devel'])
+    buildstring = "{"
+    for p in pkglist.apps:
+        if needsbuild (p):
+            buildstring += (p +',')
+    for p in pkglist.art:
+        if needsbuild (p):
+            buildstring += (p +',')
+    for p in pkglist.bindings:
+        if needsbuild (p):
+            buildstring += (p +',')
+    for p in pkglist.libs:
+        if needsbuild (p):
+            buildstring += (p +',')
+    for p in pkglist.PanelPlugins:
+        if needsbuild (p):
+            buildstring += (p +',')
+    for p in pkglist.ThunarPlugins:
+        if needsbuild (p):
+            buildstring += (p +',')
+    for p in pkglist.xfce:
+        if needsbuild (p):
+            buildstring += (p +',')
+    buildstring += '\b}{{x86_64},{x86}}'
+    print (buildstring)
+    rmk.main(['refresh-xfce.py', 'build', buildstring, '--commit', '--context=fl:2-devel'])
     
 parser = OptionParser(usage ="usage: %prog [options] action\n"
                       "\nActions:\n"
@@ -127,12 +121,14 @@ if len(args) !=1:
 
 ilp = ilps[options.repo]
 codir = codirs[options.repo]
+pkglist = __import__(pkglists[options.repo])
 project = 'whaawmp'
 if (args[0] == 'update'):
     gitrepo = 'http://git.gitorious.org/whaawmp/mainline.git'
     update()
 elif (args[0] == 'build'):
     build()
+    print pkglist
 elif (args[0] == 'all'):
     update()
     build()
