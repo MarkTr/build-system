@@ -94,7 +94,7 @@ xfce = {
     'libxfce4menu':'libxfce4menu',
     'libxfce4ui':'libxfce4ui',
     'libxfce4util':'libxfce4util',
-    'libxfcegui4':'libxfce4gui4',
+    'libxfcegui4':'libxfcegui4',
     'thunar':'thunar',
     #'thunar-vfs':'thunar-vfs',
     'xfce-utils':'xfce-utils',
@@ -108,3 +108,12 @@ xfce = {
     'xfwm4':'xfwm4',
 }
     
+subrepos = {
+    'apps':apps,
+    'art':art,
+    'bindings':bindings,
+    'libs':libs,
+    'panel-plugins':PanelPlugins,
+    'thunar-plugins':ThunarPlugins,
+    'xfce':xfce,
+}

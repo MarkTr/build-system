@@ -20,37 +20,31 @@ from rmake.cmdline import main as rmk
 versionString="%prog 0.1"   
 cwd = os.getcwd()
 cpk = conarypk.ConaryPk()
+gitrepo = 'http://git.xfce.org/git/'
 ilps = {'xd':'xfce.rpath.org@xfce:devel','fl2':'foresight.rpath.org@fl:2-devel'}
 codirs = {'xd':'~/conary/src/xfce-devel/','fl2':'~/conary/src/fl2-devel/'}
+contexts = {'xd':'xfce:devel','fl2':'fl:2-devel'}
 pkglists = {'xd':'pkglist_xd','fl2':'pkglist_fl'}
-
-
-def load_pkglist():
-    pass
 
 def wipe_out(dir):
     dir = os.path.expanduser(dir)
-    print 'delete ',dir
+#    print 'delete ',dir
     sp.check_call(['rm','-rf',dir])
     
 def chdir(dir):
     dir = os.path.expanduser(dir)
-    print 'change directory:',dir
+#    print 'change directory:',dir
     os.chdir(dir)
 
-def needsupdate_git(project, gitrepo):
-    wipe_out('~/git/' + project)
-    curgit = cpk.request_query(project, ilp)[0][1].trailingRevision().getVersion()
-    #curgit.getSourceVersion()
+def needsupdate_git(subrepo, project, gitrepo):
+    repo = pkglist.subrepos[subrepo]
+    srcname = repo[project]
+    curgit = cpk.request_query(project+":source", ilp)[0][1].trailingRevision().getVersion()
     print 'latest version of ' + project + ' in conary is: ' + curgit
-    chdir('~/git/')
-    sp.check_call(['git-clone', '-q', '--depth', '1', '-n', gitrepo, project])
-    chdir('~/git/' + project)        
-    newgit =    sp.Popen(['git', 'rev-parse', '--short', 'HEAD'],
+    newgit =    sp.Popen(['git', 'ls-remote', '-h', gitrepo+subrepo+'/'+srcname, 'master'],
             stdout=sp.PIPE, stderr=sp.STDOUT).stdout.read().strip()
+    newgit = newgit[:7]
     print 'latest commit of ' + project + ' in git is: ' + newgit
-    chdir(cwd)
-    wipe_out('~/git/' + project)
     return (newgit != curgit)
 
 def needsbuild(project):
@@ -72,35 +66,21 @@ def refresh(project):
     chdir(cwd)
     
 def update():
-    if needsupdate_git(project, gitrepo):
-        refresh(project)
+    for s in pkglist.subrepos:
+        for p in pkglist.subrepos[s]:
+            if needsupdate_git(s,p,gitrepo):
+                refresh(p)
     
 def build():
-    buildstring = "{"
-    for p in pkglist.apps:
-        if needsbuild (p):
-            buildstring += (p +',')
-    for p in pkglist.art:
-        if needsbuild (p):
-            buildstring += (p +',')
-    for p in pkglist.bindings:
-        if needsbuild (p):
-            buildstring += (p +',')
-    for p in pkglist.libs:
-        if needsbuild (p):
-            buildstring += (p +',')
-    for p in pkglist.PanelPlugins:
-        if needsbuild (p):
-            buildstring += (p +',')
-    for p in pkglist.ThunarPlugins:
-        if needsbuild (p):
-            buildstring += (p +',')
-    for p in pkglist.xfce:
-        if needsbuild (p):
-            buildstring += (p +',')
-    buildstring += '\b}{{x86_64},{x86}}'
-    print (buildstring)
-    rmk.main(['refresh-xfce.py', 'build', buildstring, '--commit', '--context=fl:2-devel'])
+    rmakecl = ['refresh-xfce.py', 'build',]
+    for s in pkglist.subrepos:
+        for p in pkglist.subrepos[s]:
+            if needsbuild (p):
+                rmakecl.append(p + '{x86_64}')
+                rmakecl.append(p + '{x86}')
+    rmakecl.append('--context='+contexts[options.repo])
+    print rmakecl
+    rmk.main(rmakecl)
     
 parser = OptionParser(usage ="usage: %prog [options] action\n"
                       "\nActions:\n"
@@ -122,13 +102,10 @@ if len(args) !=1:
 ilp = ilps[options.repo]
 codir = codirs[options.repo]
 pkglist = __import__(pkglists[options.repo])
-project = 'whaawmp'
 if (args[0] == 'update'):
-    gitrepo = 'http://git.gitorious.org/whaawmp/mainline.git'
     update()
 elif (args[0] == 'build'):
     build()
-    print pkglist
 elif (args[0] == 'all'):
     update()
     build()
