@@ -39,20 +39,30 @@ def chdir(dir):
 def needsupdate_git(subrepo, project, gitrepo):
     repo = pkglist.subrepos[subrepo]
     srcname = repo[project]
-    print project
-    curgit = cpk.request_query(project+":source", ilp)[0][1].trailingRevision().getVersion()
+    try: # don't update ig git or conary fails
+        curgit = cpk.request_query(project+":source", ilp)[0][1].trailingRevision().getVersion()
+    except:
+        return False
     print 'latest version of ' + project + ' in conary is: ' + curgit
-    newgit =    sp.Popen(['git', 'ls-remote', '-h', gitrepo+subrepo+'/'+srcname, 'master'],
+    try:
+        newgit =    sp.Popen(['git', 'ls-remote', '-h', gitrepo+subrepo+'/'+srcname, 'master'],
             stdout=sp.PIPE, stderr=sp.STDOUT).stdout.read().strip()
+    except:
+        return False
     newgit = newgit[:7]
     print 'latest commit of ' + project + ' in git is: ' + newgit
     return (newgit != curgit)
 
 def needsbuild(project):
-    return True
-    srev = cpk.request_query(project +':source', ilp)[0][1].trailingRevision()
-    brev = cpk.request_query(project, ilp)[0][1].trailingRevision()
-    print srev,srev.buildCount,srev.sourceCount, brev,brev.buildCount,brev.sourceCount
+    try: # no need to build if no source is available
+        srev = cpk.request_query(project +':source', ilp)[0][1].trailingRevision()
+    except:
+        return False
+    try: # build if no binary available
+        brev = cpk.request_query(project, ilp)[0][1].trailingRevision()
+    except:
+        return True
+    #print srev,srev.buildCount,srev.sourceCount, brev,brev.buildCount,brev.sourceCount
     return (srev.getVersion() != brev.getVersion() or
             srev.sourceCount != brev.sourceCount)
 
