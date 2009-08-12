@@ -19,17 +19,17 @@ art = {
 
 bindings = {
     #'garcon-vala':'garcon-vala',
-	#'glib-objc':glib-objc',
-	#'pyxfce':'pyxfce',
-	#'xfc':'xfc',
-	#'xfce4-mm':'xfce4-mm',
-	#'xfce4-perl':'xfce4-perl',
-	#'xfce4-vala':'xfce4-vala',
+    #'glib-objc':glib-objc',
+    #'pyxfce':'pyxfce',
+    #'xfc':'xfc',
+    #'xfce4-mm':'xfce4-mm',
+    #'xfce4-perl':'xfce4-perl',
+    'xfce4-vala':'xfce4-vala',
 }
 
 libs = {
     #'garcon':'garcon',
-	#'ghal':'ghal',
+    #'ghal':'ghal',
 }
 
 PanelPlugins = {
