@@ -39,6 +39,7 @@ def chdir(dir):
 def needsupdate_git(subrepo, project, gitrepo):
     repo = pkglist.subrepos[subrepo]
     srcname = repo[project]
+    print project
     curgit = cpk.request_query(project+":source", ilp)[0][1].trailingRevision().getVersion()
     print 'latest version of ' + project + ' in conary is: ' + curgit
     newgit =    sp.Popen(['git', 'ls-remote', '-h', gitrepo+subrepo+'/'+srcname, 'master'],

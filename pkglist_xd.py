@@ -6,7 +6,7 @@ apps = {
     'parole':'parole',
     'xarchiver':'xarchiver',
     'xfburn':'xfburn',
-    'xfce4-powermanager':'xfce4-powermanager',
+    'xfce4-power-manager':'xfce4-power-manager',
     'xfce4-screenshooter':'xfce4-screenshooter',
     'xfce4-mixer':'xfce4-mixer',
     'xfce4-dict':'xfce4-dict',
