@@ -90,6 +90,7 @@ def build():
                 rmakecl.append(p + '{x86_64}')
                 rmakecl.append(p + '{x86}')
     rmakecl.append('--context='+contexts[options.repo])
+    rmakecl.append ('--commit')
     print rmakecl
     rmk.main(rmakecl)
     
