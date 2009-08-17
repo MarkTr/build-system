@@ -20,7 +20,7 @@ from rmake.cmdline import main as rmk
 versionString="%prog 0.1"   
 cwd = os.getcwd()
 cpk = conarypk.ConaryPk()
-gitrepo = 'http://git.xfce.org/git/'
+gitrepo = 'http://git.xfce.org/'
 ilps = {'xd':'xfce.rpath.org@xfce:devel','fl2':'foresight.rpath.org@fl:2-devel'}
 codirs = {'xd':'~/conary/src/xfce-devel/','fl2':'~/conary/src/fl2-devel/'}
 contexts = {'xd':'xfce:devel','fl2':'fl:2-devel'}
