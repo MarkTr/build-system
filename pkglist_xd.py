@@ -97,7 +97,7 @@ xfce = {
     'libxfce4util':'libxfce4util',
     'libxfcegui4':'libxfcegui4',
     'thunar':'thunar',
-    #'thunar-vfs':'thunar-vfs',
+    'thunar-vfs':'thunar-vfs',
     'xfce-utils':'xfce-utils',
     'xfce4-appfinder':'xfce4-appfinder',
     'xfce4-dev-tools':'xfce4-dev-tools',
