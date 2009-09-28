@@ -86,7 +86,7 @@ def build():
     rmakecl = ['refresh-xfce.py', 'build',]
     for s in pkglist.subrepos:
         for p in pkglist.subrepos[s]:
-            if needsbuild (p):
+            if buildall or needsbuild (p):
                 rmakecl.append(p + '{x86_64}')
                 rmakecl.append(p + '{x86}')
     rmakecl.append('--context='+contexts[options.repo])
@@ -97,7 +97,8 @@ def build():
 parser = OptionParser(usage ="usage: %prog [options] action\n"
                       "\nActions:\n"
                       "  update\t\tUpdate source\n"
-                      "  build\t\t\tbuild source",
+                      "  build\t\t\tbuild package\n"
+                      "  buildall\t\tbuild all packages",
                       version=versionString)
 parser.add_option("-r", "--repo",
                   help='Conary Repository:'
@@ -117,6 +118,10 @@ pkglist = __import__(pkglists[options.repo])
 if (args[0] == 'update'):
     update()
 elif (args[0] == 'build'):
+    buildall = False
+    build()
+elif (args[0] == 'buildall'):
+    buildall = True
     build()
 elif (args[0] == 'all'):
     update()
