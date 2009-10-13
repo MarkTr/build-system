@@ -5,7 +5,6 @@ apps = {
     'mousepad':'mousepad',
     'parole':'parole',
     'ristretto':'ristretto',
-    'xarchiver':'xarchiver',
     'xfburn':'xfburn',
     'xfce4-power-manager':'xfce4-power-manager',
     'xfce4-screenshooter':'xfce4-screenshooter',
