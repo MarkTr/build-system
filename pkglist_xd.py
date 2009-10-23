@@ -28,7 +28,7 @@ bindings = {
 }
 
 libs = {
-    #'garcon':'garcon',
+    'garcon':'garcon',
     #'ghal':'ghal',
 }
 
