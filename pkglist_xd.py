@@ -10,6 +10,8 @@ apps = {
     'xfce4-screenshooter':'xfce4-screenshooter',
     'xfce4-mixer':'xfce4-mixer',
     'xfce4-dict':'xfce4-dict',
+    'xfce4-notifyd':'xfce4-notifyd',
+    'xfce4-volumed':'xfce4-volumed',
     'xfce-terminal':'terminal',
 }
 

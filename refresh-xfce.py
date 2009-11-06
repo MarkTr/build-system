@@ -73,7 +73,7 @@ def refresh(project):
     cvc.main(['refresh-xfce.py','co',project + '=' + ilp])
     chdir(codir + project)
     cvc.main(['refresh-xfce.py','refresh'])
-    cvc.main(['refresh-xfce.py','ci', "-m'sync with upstream'"])
+    cvc.main(['refresh-xfce.py','ci', '--no-interactive', "-m'sync with upstream'"])
     chdir(cwd)
     
 def update():
