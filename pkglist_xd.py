@@ -1,6 +1,6 @@
 apps = {
 #   pkgname:srcname
-    'gigolo':'gigolo',
+#    'gigolo':'gigolo',
     'midori':'midori',
     'mousepad':'mousepad',
     'parole':'parole',

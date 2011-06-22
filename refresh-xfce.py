@@ -14,6 +14,7 @@ from optparse import OptionParser
 import subprocess as sp
 import os
 import conarypk
+import fileinput
 from conary import cvc
 from rmake.cmdline import main as rmk
 
@@ -51,7 +52,19 @@ def needsupdate_git(subrepo, project, gitrepo):
         return False
     newgit = newgit[:7]
     print 'latest commit of ' + project + ' in git is: ' + newgit
-    return (newgit != curgit)
+    if (newgit != curgit):
+        print 'refresh: ' + project
+        wipe_out(codir + project)
+        chdir(codir)
+        cvc.main(['refresh-xfce.py','co',project + '=' + ilp])
+        chdir(codir + project)
+        for line in fileinput.FileInput(project + '.recipe', inplace=1):
+            print line.replace(curgit,newgit),
+        cvc.main(['refresh-xfce.py','refresh'])
+        cvc.main(['refresh-xfce.py','ci', '--no-interactive', "-m'sync with upstream'"])
+        chdir(cwd)
+
+    return newgit if newgit != curgit else False
 
 def needsbuild(project):
     try: # no need to build if no source is available
@@ -79,8 +92,8 @@ def refresh(project):
 def update():
     for s in pkglist.subrepos:
         for p in pkglist.subrepos[s]:
-            if needsupdate_git(s,p,gitrepo):
-                refresh(p)
+            needsupdate_git(s,p,gitrepo)
+            #    refresh(p)
     
 def build():
     rmakecl = ['refresh-xfce.py', 'build',]
