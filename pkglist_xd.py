@@ -5,9 +5,7 @@ apps = {
     'mousepad':'mousepad',
     'parole':'parole',
     'ristretto':'ristretto',
-    'tumbler':'tumbler',
     'xfburn':'xfburn',
-    'xfce4-power-manager':'xfce4-power-manager',
     'xfce4-screenshooter':'xfce4-screenshooter',
     'xfce4-mixer':'xfce4-mixer',
     'xfce4-dict':'xfce4-dict',
@@ -31,7 +29,6 @@ bindings = {
 }
 
 libs = {
-    'garcon':'garcon',
     #'ghal':'ghal',
 }
 
@@ -93,6 +90,7 @@ ThunarPlugins = {
 
 xfce = {
     'libexo':'exo',
+    'garcon':'garcon',
     'gtk-xfce-engine':'gtk-xfce-engine',
     'libxfce4menu':'libxfce4menu',
     'libxfce4ui':'libxfce4ui',
@@ -100,10 +98,12 @@ xfce = {
     'libxfcegui4':'libxfcegui4',
     'thunar':'thunar',
     'thunar-vfs':'thunar-vfs',
+    'tumbler':'tumbler',
     'xfce-utils':'xfce-utils',
     'xfce4-appfinder':'xfce4-appfinder',
     'xfce4-dev-tools':'xfce4-dev-tools',
     'xfce4-panel':'xfce4-panel',
+    'xfce4-power-manager':'xfce4-power-manager',
     'xfce4-session':'xfce4-session',
     'xfce4-settings':'xfce4-settings',
     'xfconf':'xfconf',
