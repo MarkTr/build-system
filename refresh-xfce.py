@@ -37,19 +37,19 @@ def chdir(dir):
 #    print 'change directory:',dir
     os.chdir(dir)
 
-def needsupdate_git(subrepo, project, gitrepo):
+def update_git(subrepo, project, gitrepo):
     repo = pkglist.subrepos[subrepo]
     srcname = repo[project]
     try: # don't update ig git or conary fails
         curgit = cpk.request_query(project+":source", ilp)[0][1].trailingRevision().getVersion()
     except:
-        return False
+        return
     print 'latest version of ' + project + ' in conary is: ' + curgit
     try:
         newgit =    sp.Popen(['git', 'ls-remote', '-h', gitrepo+subrepo+'/'+srcname, 'master'],
             stdout=sp.PIPE, stderr=sp.STDOUT).stdout.read().strip()
     except:
-        return False
+        return
     newgit = newgit[:7]
     print 'latest commit of ' + project + ' in git is: ' + newgit
     if (newgit != curgit):
@@ -64,8 +64,6 @@ def needsupdate_git(subrepo, project, gitrepo):
         cvc.main(['refresh-xfce.py','ci', '--no-interactive', "-m'sync with upstream'"])
         chdir(cwd)
 
-    return newgit if newgit != curgit else False
-
 def needsbuild(project):
     try: # no need to build if no source is available
         srev = cpk.request_query(project +':source', ilp)[0][1].trailingRevision()
@@ -79,21 +77,10 @@ def needsbuild(project):
     return (srev.getVersion() != brev.getVersion() or
             srev.sourceCount != brev.sourceCount)
 
-def refresh(project):
-    print 'refresh: ' + project
-    wipe_out(codir + project)
-    chdir(codir)
-    cvc.main(['refresh-xfce.py','co',project + '=' + ilp])
-    chdir(codir + project)
-    cvc.main(['refresh-xfce.py','refresh'])
-    cvc.main(['refresh-xfce.py','ci', '--no-interactive', "-m'sync with upstream'"])
-    chdir(cwd)
-    
 def update():
     for s in pkglist.subrepos:
         for p in pkglist.subrepos[s]:
-            needsupdate_git(s,p,gitrepo)
-            #    refresh(p)
+            update_git(s,p,gitrepo)
     
 def build():
     rmakecl = ['refresh-xfce.py', 'build',]
