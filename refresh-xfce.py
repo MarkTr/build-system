@@ -121,7 +121,6 @@ print (args)
 if len(args) !=1:
     parser.error("incorrect number of arguments")
 
-arch = options.arch
 ilp = ilps[options.repo]
 codir = codirs[options.repo]
 pkglist = __import__(pkglists[options.repo])
