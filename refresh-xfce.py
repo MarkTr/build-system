@@ -18,7 +18,7 @@ import fileinput
 from conary import cvc
 from rmake.cmdline import main as rmk
 
-versionString="%prog 0.1"   
+versionString="%prog 0.2"   
 cwd = os.getcwd()
 cpk = conarypk.ConaryPk()
 gitrepo = 'http://git.xfce.org/'
@@ -87,8 +87,11 @@ def build():
     for s in pkglist.subrepos:
         for p in pkglist.subrepos[s]:
             if buildall or needsbuild (p):
-                rmakecl.append(p + '{x86_64}')
-                rmakecl.append(p + '{x86}')
+                if options.arch == 'all':
+                    rmakecl.append(p + '{x86_64}')
+                    rmakecl.append(p + '{x86}')
+                else:
+                    rmakecl.append(p + '{' + options.arch + '}')
     rmakecl.append('--context='+contexts[options.repo])
     rmakecl.append ('--commit')
     print rmakecl
@@ -106,12 +109,19 @@ parser.add_option("-r", "--repo",
                        'fl2 - foresight.rpath.org@fl:2-devel '
                        '[default: %default]', default="xd")
 
+parser.add_option("-a", "--arch",
+                  help='Arch to build:'
+                       'x86 - build x86 '
+                       'x86_64 - build x86_64 '
+                       '[default: %default]', default="all")
+
 (options, args) = parser.parse_args()
 print (options)
 print (args)
 if len(args) !=1:
     parser.error("incorrect number of arguments")
 
+arch = options.arch
 ilp = ilps[options.repo]
 codir = codirs[options.repo]
 pkglist = __import__(pkglists[options.repo])
